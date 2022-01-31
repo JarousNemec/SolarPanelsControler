@@ -1,17 +1,9 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
+#include <main.h>
 
-using namespace std;
-
-const char *ssid = "ASUS";
-const char *password = "hesloheslo";
-const int solarPin = 2;
 HTTPClient http;  //Declare an object of class HTTPClient
 WiFiClient wiFiClient;
-
-String PrepateToParseJson(String json);
-
-String GetValueFromString(String data, const String& findingKey);
 
 void setup() {
     Serial.begin(115200);
