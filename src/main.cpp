@@ -2,11 +2,16 @@
 #include <ESP8266HTTPClient.h>
 #include <main.h>
 
-HTTPClient http;  //Declare an object of class HTTPClient
+HTTPClient http;
 WiFiClient wiFiClient;
 
 void setup() {
     Serial.begin(115200);
+    ConnectToWifi();
+    pinMode(solarPin, OUTPUT);
+}
+
+void ConnectToWifi() {
     WiFi.begin(ssid, password);
 
     while (WiFi.status() != WL_CONNECTED) {
@@ -15,51 +20,58 @@ void setup() {
         Serial.print(".");
 
     }
-    http.begin(wiFiClient, "http://192.168.1.58:8081/spstate");
-    pinMode(solarPin,OUTPUT);
+    Serial.println();
+    Serial.println("Connected");
+    Serial.println("---------------------");
+    http.begin(wiFiClient, url);
 }
 
 void loop() {
+    if (WiFi.status() == WL_CONNECTED) {
+        int httpCode = http.GET();
 
-    if (WiFi.status() == WL_CONNECTED) { //Check WiFi connection status
-
-        //Specify request destination
-        int httpCode = http.GET();                                  //Send the request
-
-        if (httpCode > 0) { //Check the returning code
-
-            String payload = http.getString();   //Get the request response payload
-            payload = PrepateToParseJson(payload);
-            String state = GetValueFromString(payload, "state");
+        if (httpCode > 0) {
+            String payload = http.getString();
+            String preparedString = PrepateToParseJson(payload);
+            String state = GetKeyValue(preparedString, "state");
             if (state == "true") {
-                Serial.println("panels: true");
+                Serial.println(" - panels: true");
                 digitalWrite(solarPin, HIGH);
             } else if (state == "false") {
-                Serial.println("panels: false");
+                Serial.println(" - panels: false");
                 digitalWrite(solarPin, LOW);
             }
         }
     }
-
-    delay(5000);    //Send a request every 5 seconds
+    else{
+        Serial.println("---------------------");
+        Serial.println("Connection lost!");
+        ConnectToWifi();
+    }
+    Serial.println("---------------------");
+    delay(5000);
 }
 
 String PrepateToParseJson(String json) {
+    Serial.println(" - Preparing json to parse");
     json.replace("\"", "");
     json.remove(0, 2);
     json.remove(json.length() - 2, 2);
     json.replace(":", ",");
     json += ",";
+    Serial.println(" - Prepared");
     return json;
 }
 
-String GetValueFromString(String data, const String& findingKey) {
+String GetKeyValue(String data, const String &findingKey) {
+    Serial.println(" - Parsing value from json");
     String temp = "";
     bool found = false;
 
-    for (char & j : data) {
+    for (char &j : data) {
         if (j == ',') {
             if (found) {
+                Serial.println(" - Value parsed");
                 return temp;
             }
             if (temp == findingKey) {
@@ -70,6 +82,6 @@ String GetValueFromString(String data, const String& findingKey) {
             temp += j;
         }
     }
-
+    Serial.println(" - Cant parse founded value");
     return "";
 }
