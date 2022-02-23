@@ -8,7 +8,7 @@
 
 const char *ssid = "ASUS";
 const char *password = "hesloheslo";
-const int solarPin = 2;
+const int solarPin = 4;
 
 String PrepateToParseJson(String json);
 
