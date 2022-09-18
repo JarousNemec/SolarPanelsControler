@@ -17,11 +17,12 @@ String url = "http://solarpanelcontroller.azurewebsites.net/api/ControllerEndpoi
 //String url =  "http://192.168.1.58:7071/api/ControllerEndpoint?";
 HTTPClient http;
 WiFiClient wiFiClient;
-const char *ssid = "ASUS";
+const char *ssid = "MikroTik-84291F";
+//const char *ssid = "ASUS";
 const char *password = "hesloheslo";
 double mps = 0;
 unsigned long timer = 0;
-double t = 0;
+float t = 0;
 float RT, VR, ln, tx, T0, VRT;
 int counter = 0;
 int anemo_pin = 14;
